@@ -28,8 +28,9 @@ Las automatizaciones (cron/cloud) y el dashboard son fases 2 y 3 — spec aparte
 3. **Reality-check: los skills de Claude Code son planos**, no anidados. El
    "organigrama" es (a) convención de nombres + (b) mapa visual. No hay jerarquía
    real en disco.
-4. **No duplicar funcionalidad existente.** De las 4 tareas dev candidatas, solo
-   2 son genuinamente nuevas. worktree y code-review ya existen como plugins y se
+4. **No duplicar funcionalidad existente.** De las tareas dev candidatas, las
+   genuinamente nuevas son los evals y el deploy (este último se separa en
+   staging y prod). worktree y code-review ya existen como plugins y se
    **referencian**, no se reconstruyen.
 
 ## Alcance: la rama Desarrollo
@@ -40,13 +41,24 @@ Las automatizaciones (cron/cloud) y el dashboard son fases 2 y 3 — spec aparte
   worktree correcto, resume pass/fail y enlaza el reporte. Parametriza la ruta del
   repo/worktree (la pregunta o la lee del `CLAUDE.md` del repo). Base ya existente:
   Fase 0 en el worktree `feature/agent-evals`.
-- **`dev-deploy`** — skill *guardarraíl* (no automatiza el deploy). Codifica las
-  reglas duras de Eric:
-  - Nunca merge a `master` sin staging + preview previos (salvo autorización
-    explícita).
-  - gcloud se ejecuta desde **PowerShell**, no WSL.
-  - Vercel autodeploya con push.
-  Verifica precondiciones y guía el flujo paso a paso.
+- **`dev-deploy-staging`** — deploy a staging. Acción: `commit + push` a la rama
+  `staging` → autodeploy del entorno staging. Reglas: gcloud por **PowerShell** (no
+  WSL); Vercel autodeploya con push.
+- **`dev-deploy-prod`** — deploy a prod. Acción: `merge` de `staging` → `master` →
+  autodeploy de prod. *Guardarraíl*: no mergear a `master` sin staging + preview
+  validados (salvo autorización explícita). Verifica precondiciones antes de mergear.
+
+Son **dos acciones distintas**, por eso son dos skills separados (no un skill con
+modos). El ciclo completo de dev:
+
+```
+worktree (feature aislada) → integrar a 'staging' → dev-deploy-staging (push) → dev-deploy-prod (merge a master)
+```
+
+El **worktree es la fase previa**, no parte del deploy: aísla el desarrollo de la
+feature; cuando está lista se integra a `staging` y ahí arranca el ciclo de deploy.
+En el mapa se ve la cadena completa, pero los skills de deploy solo cubren
+staging-push y prod-merge.
 
 ### Nodos plugin (referenciados, NO se tocan) — 🔵
 
@@ -63,7 +75,8 @@ Las automatizaciones (cron/cloud) y el dashboard son fases 2 y 3 — spec aparte
 ```
 ~/.claude/skills/
   dev-evals/SKILL.md
-  dev-deploy/SKILL.md
+  dev-deploy-staging/SKILL.md
+  dev-deploy-prod/SKILL.md
 
 <vault>/proyectos/agentic-os.md      # organigrama: markdown + diagrama Mermaid
 ```
@@ -78,8 +91,12 @@ Las automatizaciones (cron/cloud) y el dashboard son fases 2 y 3 — spec aparte
 - **`dev-evals`**: se invoca cuando Eric quiere correr los evals. Entrada: (opcional)
   ruta del worktree. Salida: resumen pass/fail + ruta del reporte. Depende de: pytest,
   el repo Petramora, el worktree de evals.
-- **`dev-deploy`**: se invoca antes de un deploy. Entrada: rama objetivo. Salida:
-  checklist verificado + guía. Depende de: estado git del repo, reglas en memoria.
+- **`dev-deploy-staging`**: se invoca para publicar a staging. Entrada: ninguna (o
+  mensaje de commit). Salida: commit + push a `staging` confirmados. Depende de:
+  estado git del repo, rama `staging`, gcloud por PowerShell.
+- **`dev-deploy-prod`**: se invoca para promover a prod. Entrada: ninguna. Salida:
+  precondiciones verificadas + merge `staging`→`master`. Depende de: que staging +
+  preview estén validados, estado git del repo, reglas en memoria.
 - **Nodos plugin**: se invocan por su nombre de skill estándar; el mapa solo los
   documenta.
 
@@ -96,8 +113,8 @@ custom vs plugin → nombrar con prefijo → añadir al mapa `agentic-os.md`.
 
 ## Criterio de éxito
 
-1. `dev-evals` y `dev-deploy` existen en `~/.claude/skills/`, se invocan y hacen lo
-   descrito (verificado, no asumido).
+1. `dev-evals`, `dev-deploy-staging` y `dev-deploy-prod` existen en
+   `~/.claude/skills/`, se invocan y hacen lo descrito (verificado, no asumido).
 2. `agentic-os.md` en el vault muestra el organigrama de la rama Desarrollo con los
    dos tipos de nodo.
 3. El patrón queda claro para replicar a las otras 3 ramas.
