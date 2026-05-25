@@ -2,20 +2,25 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking. Para CADA skill, usar superpowers:writing-skills como guía de autoría.
 
-**Goal:** Construir los 3 skills custom de la rama Desarrollo (`dev-evals`, `dev-deploy-staging`, `dev-deploy-prod`) versionados en `~/dev/agentic-os` y activos en `~/.claude/skills/`, más el mapa-organigrama en el vault.
+**Goal:** Construir los 3 skills custom de la rama Desarrollo (`dev-evals`, `dev-deploy-staging`, `dev-deploy-prod`) versionados en `$OS_DIR` y activos en `~/.claude/skills/`, más el mapa-organigrama en el vault.
 
 **Architecture:** Los SKILL.md se escriben dentro del repo (`skills/dev-*/`) como fuente única y se symlinkean a `~/.claude/skills/` para que Claude Code los descubra. El organigrama vive en el vault como markdown + Mermaid, distinguiendo nodos custom (🟢) de plugin (🔵). Los skills operan sobre el repo Petramora (ruta confirmada en Task 0).
 
-**Tech Stack:** Claude Code skills (SKILL.md con frontmatter name/description), bash, git, symlinks (WSL→home Linux), Mermaid en markdown.
+**Tech Stack:** Claude Code skills (SKILL.md con frontmatter name/description), bash, git, symlinks (WSL→Dropbox), Mermaid en markdown.
+
+> **Setup (ejecutar una vez por shell antes de los comandos):** el proyecto vive en Dropbox (ruta con espacios), así que se usa `$OS_DIR`:
+> ```bash
+> export OS_DIR="/mnt/c/Users/Luis Ojeda/Likeik CX Dropbox/Comercial/@PROYECTOS/Agente IA/claude_code_os"
+> ```
 
 ---
 
 ## File Structure
 
-- `~/dev/agentic-os/skills/dev-evals/SKILL.md` — skill correr evals Petramora
-- `~/dev/agentic-os/skills/dev-deploy-staging/SKILL.md` — skill push a staging
-- `~/dev/agentic-os/skills/dev-deploy-prod/SKILL.md` — skill merge staging→master
-- `~/dev/agentic-os/RECON.md` — notas de reconocimiento del repo Petramora (Task 0)
+- `$OS_DIR/skills/dev-evals/SKILL.md` — skill correr evals Petramora
+- `$OS_DIR/skills/dev-deploy-staging/SKILL.md` — skill push a staging
+- `$OS_DIR/skills/dev-deploy-prod/SKILL.md` — skill merge staging→master
+- `$OS_DIR/RECON.md` — notas de reconocimiento del repo Petramora (Task 0)
 - `~/.claude/skills/dev-evals` → symlink al del repo (idem para los otros dos)
 - `<vault>/proyectos/agentic-os.md` — organigrama de la rama Desarrollo
 
@@ -26,7 +31,7 @@
 Sin esto, los skills tendrían comandos inventados. Confirmamos rutas/comandos reales.
 
 **Files:**
-- Create: `~/dev/agentic-os/RECON.md`
+- Create: `$OS_DIR/RECON.md`
 
 - [ ] **Step 1: Localizar el repo Petramora y su worktree de evals**
 
@@ -57,12 +62,12 @@ Expected: confirmar que existe rama `staging` y `master`, y a qué remoto apunta
 
 - [ ] **Step 4: Escribir RECON.md con los hallazgos**
 
-Volcar en `~/dev/agentic-os/RECON.md`: ruta repo, ruta worktree evals, comando evals exacto, nombres de rama staging/master, remoto. Sin placeholders — valores reales.
+Volcar en `$OS_DIR/RECON.md`: ruta repo, ruta worktree evals, comando evals exacto, nombres de rama staging/master, remoto. Sin placeholders — valores reales.
 
 - [ ] **Step 5: Commit**
 
 ```bash
-cd ~/dev/agentic-os && git add RECON.md && git commit -m "docs: reconocimiento repo Petramora para skills dev"
+cd "$OS_DIR" && git add RECON.md && git commit -m "docs: reconocimiento repo Petramora para skills dev"
 ```
 
 ---
@@ -70,7 +75,7 @@ cd ~/dev/agentic-os && git add RECON.md && git commit -m "docs: reconocimiento r
 ## Task 1: Skill `dev-evals`
 
 **Files:**
-- Create: `~/dev/agentic-os/skills/dev-evals/SKILL.md`
+- Create: `$OS_DIR/skills/dev-evals/SKILL.md`
 - Symlink: `~/.claude/skills/dev-evals`
 
 - [ ] **Step 1: Escribir el SKILL.md** (guíate por superpowers:writing-skills)
@@ -103,7 +108,7 @@ Cuando Eric dice "corre los evals", "evalúa el agente", o similar.
 - [ ] **Step 2: Symlink al directorio de skills de Claude Code**
 
 ```bash
-ln -sfn ~/dev/agentic-os/skills/dev-evals ~/.claude/skills/dev-evals
+ln -sfn "$OS_DIR/skills/dev-evals" ~/.claude/skills/dev-evals
 ls -ld ~/.claude/skills/dev-evals
 ```
 Expected: symlink apuntando al repo.
@@ -119,7 +124,7 @@ Expected: imprime el frontmatter `name: dev-evals`. (Verificación de descubrimi
 - [ ] **Step 4: Commit**
 
 ```bash
-cd ~/dev/agentic-os && git add skills/dev-evals && git commit -m "feat: skill dev-evals (correr evals Petramora)"
+cd "$OS_DIR" && git add skills/dev-evals && git commit -m "feat: skill dev-evals (correr evals Petramora)"
 ```
 
 ---
@@ -127,7 +132,7 @@ cd ~/dev/agentic-os && git add skills/dev-evals && git commit -m "feat: skill de
 ## Task 2: Skill `dev-deploy-staging`
 
 **Files:**
-- Create: `~/dev/agentic-os/skills/dev-deploy-staging/SKILL.md`
+- Create: `$OS_DIR/skills/dev-deploy-staging/SKILL.md`
 - Symlink: `~/.claude/skills/dev-deploy-staging`
 
 - [ ] **Step 1: Escribir el SKILL.md**
@@ -158,7 +163,7 @@ Cuando Eric dice "deploy a staging", "sube a staging", "publica staging".
 - [ ] **Step 2: Symlink**
 
 ```bash
-ln -sfn ~/dev/agentic-os/skills/dev-deploy-staging ~/.claude/skills/dev-deploy-staging
+ln -sfn "$OS_DIR/skills/dev-deploy-staging" ~/.claude/skills/dev-deploy-staging
 ```
 
 - [ ] **Step 3: Verificar descubrimiento**
@@ -171,7 +176,7 @@ Expected: frontmatter `name: dev-deploy-staging`.
 - [ ] **Step 4: Commit**
 
 ```bash
-cd ~/dev/agentic-os && git add skills/dev-deploy-staging && git commit -m "feat: skill dev-deploy-staging (push a staging)"
+cd "$OS_DIR" && git add skills/dev-deploy-staging && git commit -m "feat: skill dev-deploy-staging (push a staging)"
 ```
 
 ---
@@ -179,7 +184,7 @@ cd ~/dev/agentic-os && git add skills/dev-deploy-staging && git commit -m "feat:
 ## Task 3: Skill `dev-deploy-prod`
 
 **Files:**
-- Create: `~/dev/agentic-os/skills/dev-deploy-prod/SKILL.md`
+- Create: `$OS_DIR/skills/dev-deploy-prod/SKILL.md`
 - Symlink: `~/.claude/skills/dev-deploy-prod`
 
 - [ ] **Step 1: Escribir el SKILL.md**
@@ -213,7 +218,7 @@ Cuando Eric dice "deploy a prod", "promociona a producción", "merge a master".
 - [ ] **Step 2: Symlink**
 
 ```bash
-ln -sfn ~/dev/agentic-os/skills/dev-deploy-prod ~/.claude/skills/dev-deploy-prod
+ln -sfn "$OS_DIR/skills/dev-deploy-prod" ~/.claude/skills/dev-deploy-prod
 ```
 
 - [ ] **Step 3: Verificar descubrimiento**
@@ -226,7 +231,7 @@ Expected: frontmatter `name: dev-deploy-prod`.
 - [ ] **Step 4: Commit**
 
 ```bash
-cd ~/dev/agentic-os && git add skills/dev-deploy-prod && git commit -m "feat: skill dev-deploy-prod (merge staging->master, guardarrail)"
+cd "$OS_DIR" && git add skills/dev-deploy-prod && git commit -m "feat: skill dev-deploy-prod (merge staging->master, guardarrail)"
 ```
 
 ---
