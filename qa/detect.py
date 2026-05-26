@@ -24,7 +24,7 @@ def detect_errors(interactions: list[Interaction]) -> list[ErrorFinding]:
         if i.latency_ms is not None and i.latency_ms > TIMEOUT_MS:
             findings.append(ErrorFinding(
                 interaction_id=i.id, error_type="timeout",
-                signal=f"latency_ms={i.latency_ms} > {TIMEOUT_MS}",
+                signal=f"latency_ms > {TIMEOUT_MS}",
                 severity="medium", excerpt=str(i.latency_ms)))
         err = i.raw.get("error") if isinstance(i.raw, dict) else None
         if err:

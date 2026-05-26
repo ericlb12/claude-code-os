@@ -1,8 +1,7 @@
 import os
 from datetime import datetime, timezone
-from qa.group import ErrorGroup
+from qa.group import ErrorGroup, group_findings
 from qa.detect import detect_errors
-from qa.group import group_findings
 from qa.model import Interaction
 
 

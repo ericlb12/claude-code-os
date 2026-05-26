@@ -34,9 +34,10 @@ def fetch_interactions(cfg: dict, since: str) -> list[Interaction]:
     host = os.environ[cfg["host_env"]]
     pk = os.environ[cfg["public_key_env"]]
     sk = os.environ[cfg["secret_key_env"]]
+    from qa.window import parse_since
     resp = requests.get(
         f"{host}/api/public/traces",
-        params={"limit": 100},
+        params={"limit": 100, "fromTimestamp": parse_since(since)},
         auth=(pk, sk), timeout=30,
     )
     resp.raise_for_status()

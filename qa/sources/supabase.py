@@ -4,6 +4,9 @@ from qa.model import Interaction, ToolCall
 
 def normalize_row(row: dict) -> Interaction:
     raw_tools = row.get("tools_called") or []
+    # NOTA: agent_logs.tools_called solo guarda {name,args}, sin estado ok/error por tool.
+    # Por eso ok=True siempre: la señal `tool_error` queda inerte en Supabase hasta que
+    # se instrumente el éxito/fallo por tool. Los errores de turno se captan vía `error`.
     tool_calls = [
         ToolCall(name=str(t.get("name", "?")), ok=True, message=None)
         for t in raw_tools if isinstance(t, dict)
@@ -27,7 +30,9 @@ def fetch_interactions(cfg: dict, since: str) -> list[Interaction]:
     if not cfg.get("enabled"):
         return []
     from supabase import create_client
+    from qa.window import parse_since
     client = create_client(os.environ[cfg["url_env"]], os.environ[cfg["key_env"]])
     resp = (client.table(cfg["table"]).select("*")
+            .gte("timestamp", parse_since(since))
             .order("timestamp", desc=True).limit(200).execute())
     return [normalize_row(r) for r in (resp.data or [])]

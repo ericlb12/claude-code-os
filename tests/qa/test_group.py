@@ -23,3 +23,16 @@ def test_priority_high_before_medium_on_tie():
 
 def test_empty_input():
     assert group_findings([]) == []
+
+def test_timeouts_aggregate_into_one_group():
+    from qa.detect import detect_errors, TIMEOUT_MS
+    from qa.model import Interaction
+    def _i(iid, lat):
+        return Interaction(id=iid, timestamp="t", source="supabase", user_input="x",
+                           agent_output="ok", tool_calls=[], execution_error=None,
+                           latency_ms=lat, raw={})
+    findings = detect_errors([_i("1", TIMEOUT_MS + 100), _i("2", TIMEOUT_MS + 9999)])
+    groups = group_findings(findings)
+    timeout_groups = [g for g in groups if g.error_type == "timeout"]
+    assert len(timeout_groups) == 1
+    assert timeout_groups[0].count == 2
