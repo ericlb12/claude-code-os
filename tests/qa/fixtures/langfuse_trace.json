@@ -1,0 +1,8 @@
+{
+  "id": "trace-1",
+  "timestamp": "2026-05-26T01:00:00Z",
+  "input": {"user": "como va la cartera"},
+  "output": {"text": "aqui tienes"},
+  "observations": [{"name": "get_segment_distribution", "level": "DEFAULT"}],
+  "latency": 1.2
+}
