@@ -1,0 +1,13 @@
+name: demo
+default_since: 24h
+langfuse:
+  enabled: true
+  host_env: LANGFUSE_HOST
+  public_key_env: LANGFUSE_PUBLIC_KEY
+  secret_key_env: LANGFUSE_SECRET_KEY
+  project: demo-project
+supabase:
+  enabled: true
+  url_env: SUPABASE_URL
+  key_env: SUPABASE_KEY
+  table: agent_interactions
