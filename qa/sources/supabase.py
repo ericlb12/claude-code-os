@@ -3,7 +3,6 @@ from qa.model import Interaction, ToolCall
 
 
 def _client(cfg: dict):
-    import os
     from supabase import create_client
     return create_client(os.environ[cfg["url_env"]], os.environ[cfg["key_env"]])
 

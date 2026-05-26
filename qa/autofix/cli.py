@@ -1,10 +1,14 @@
 import os
+import re
 from datetime import datetime, timezone
 from typing import Callable, Optional
 
 from qa.model import Interaction
 from qa.autofix.repro import build_repro_case, ReproError
 from qa.autofix.runner import run_fix, FixResult, Executor
+
+
+_SAFE_ID = re.compile(r"^[A-Za-z0-9_-]+$")
 
 
 def _branch_for(interaction_id: str) -> str:
@@ -16,6 +20,9 @@ def autofix_interaction(interaction_id: str, modo: str, base: str, worktree: str
                         fetch: Callable[[str], Optional[Interaction]],
                         executor: Optional[Executor] = None,
                         dry_run: bool = False) -> FixResult:
+    if not _SAFE_ID.match(str(interaction_id)):
+        return FixResult(status="failed",
+                         detail=f"interaction_id inseguro o invalido: {interaction_id!r}")
     interaction = fetch(interaction_id)
     if interaction is None:
         return FixResult(status="failed", detail=f"interaccion {interaction_id} no encontrada")
