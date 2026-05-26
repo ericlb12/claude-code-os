@@ -2,6 +2,12 @@ import os
 from qa.model import Interaction, ToolCall
 
 
+def _client(cfg: dict):
+    import os
+    from supabase import create_client
+    return create_client(os.environ[cfg["url_env"]], os.environ[cfg["key_env"]])
+
+
 def normalize_row(row: dict) -> Interaction:
     raw_tools = row.get("tools_called") or []
     # NOTA: agent_logs.tools_called solo guarda {name,args}, sin estado ok/error por tool.
@@ -29,9 +35,8 @@ def fetch_interactions(cfg: dict, since: str) -> list[Interaction]:
     cfg = sección supabase del target."""
     if not cfg.get("enabled"):
         return []
-    from supabase import create_client
     from qa.window import parse_since
-    client = create_client(os.environ[cfg["url_env"]], os.environ[cfg["key_env"]])
+    client = _client(cfg)
     resp = (client.table(cfg["table"]).select("*")
             .gte("timestamp", parse_since(since))
             .order("timestamp", desc=True).limit(200).execute())
