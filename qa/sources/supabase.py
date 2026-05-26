@@ -1,0 +1,33 @@
+import os
+from qa.model import Interaction, ToolCall
+
+
+def normalize_row(row: dict) -> Interaction:
+    raw_tools = row.get("tools_called") or []
+    tool_calls = [
+        ToolCall(name=str(t.get("name", "?")), ok=True, message=None)
+        for t in raw_tools if isinstance(t, dict)
+    ]
+    return Interaction(
+        id=str(row.get("id", "")),
+        timestamp=str(row.get("timestamp", "")),
+        source="supabase",
+        user_input=str(row.get("user_message", "") or ""),
+        agent_output=str(row.get("agent_response", "") or ""),
+        tool_calls=tool_calls,
+        execution_error=(row.get("error") or None),
+        latency_ms=row.get("latency_ms"),
+        raw=row,
+    )
+
+
+def fetch_interactions(cfg: dict, since: str) -> list[Interaction]:
+    """Lee filas de la tabla de interacciones de Supabase (agent_logs).
+    cfg = sección supabase del target."""
+    if not cfg.get("enabled"):
+        return []
+    from supabase import create_client
+    client = create_client(os.environ[cfg["url_env"]], os.environ[cfg["key_env"]])
+    resp = (client.table(cfg["table"]).select("*")
+            .order("timestamp", desc=True).limit(200).execute())
+    return [normalize_row(r) for r in (resp.data or [])]
