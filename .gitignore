@@ -1,2 +1,5 @@
 node_modules/
 .DS_Store
+.venv/
+.venv_test/
+.pytest_cache/
