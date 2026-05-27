@@ -1,0 +1,11 @@
+:root{--bg:#0c0c0e;--panel:#161619;--border:#26262c;--muted:#8a8a92;--accent:#d2502a;--ok:#4ad07a;--text:#e8e8ea}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:14px/1.5 system-ui,sans-serif}
+.nav{display:flex;justify-content:space-between;align-items:center;padding:12px 18px;border-bottom:1px solid var(--border)}
+.brand{font-weight:700;letter-spacing:2px}.brand b{color:var(--accent)}
+.wrap{padding:16px;display:grid;grid-template-columns:2fr 1fr;gap:14px}
+.meters{grid-column:1/-1;display:flex;gap:10px}
+.card{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px}
+.card h3{margin:0 0 8px;font-size:11px;letter-spacing:1px;color:var(--muted);text-transform:uppercase}
+.big{font-size:22px}.ok{color:var(--ok)}.bad{color:var(--accent)}.muted{color:var(--muted)}
+.row{display:flex;justify-content:space-between;border-bottom:1px solid var(--border);padding:4px 0;font-size:12px;gap:10px}
+.row span:first-child{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
