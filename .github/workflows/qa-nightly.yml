@@ -1,0 +1,36 @@
+name: QA nightly (Petramora)
+
+# Seguridad: este workflow NO usa ninguna entrada no confiable (títulos de issues/PRs,
+# comentarios, etc.). Solo secrets (SUPABASE_*) y github.workspace, que son seguros.
+
+on:
+  schedule:
+    - cron: "0 1 * * *"      # 01:00 UTC ~= 03:00 Madrid (CEST). GH cron es UTC y aproximado.
+  workflow_dispatch: {}        # permite lanzarlo a mano
+
+permissions:
+  contents: write              # para commitear el informe de vuelta
+
+jobs:
+  qa:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install deps
+        run: pip install -r requirements.txt
+      - name: Run QA report
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+          OS_DIR: ${{ github.workspace }}
+        run: python -m qa.cron --target petramora --since 24h
+      - name: Commit report
+        run: |
+          git config user.name "qa-bot"
+          git config user.email "qa-bot@users.noreply.github.com"
+          git add qa-reports/
+          git commit -m "chore: QA nightly run" || echo "sin cambios que commitear"
+          git push
