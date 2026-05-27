@@ -46,12 +46,17 @@ async function refresh(){
   } else { ce.appendChild(el("div","bad","no disponible")); }
 }
 const SVGNS="http://www.w3.org/2000/svg";
+let _chartSerie=[];   // [{dia, acum}] para el tooltip
+function _diaCorto(d){ return (d||"").slice(5); }   // MM-DD
+
 function drawChart(serie){
   const svg=document.getElementById("chart"); clear(svg);
   const empty=document.getElementById("chart-empty");
-  if(!serie || serie.length<1){ empty.textContent="sin actividad registrada"; return; }
+  const datesEl=document.getElementById("chart-dates"); clear(datesEl);
+  if(!serie || serie.length<1){ empty.textContent="sin actividad registrada"; _chartSerie=[]; return; }
   empty.textContent="";
-  let cum=0; const pts=serie.map((d,i)=>{ cum+=(d.eventos||0); return {x:i,y:cum}; });
+  let cum=0; const pts=serie.map((d,i)=>{ cum+=(d.eventos||0); return {x:i,y:cum,dia:d.dia}; });
+  _chartSerie=pts.map(p=>({dia:p.dia, acum:p.y}));
   const n=pts.length, maxY=pts[n-1].y||1;
   const X=i=> n<=1?0:(i/(n-1))*600;
   const Y=y=> 118-(y/maxY)*108;
@@ -64,7 +69,32 @@ function drawChart(serie){
   poly.setAttribute("stroke","#d2502a"); poly.setAttribute("stroke-width","2.5");
   poly.setAttribute("vector-effect","non-scaling-stroke");
   svg.appendChild(area); svg.appendChild(poly);
+  // etiquetas de fecha (máx 6, repartidas)
+  const maxLbl=Math.min(6,n), step=n<=1?1:(n-1)/(maxLbl-1||1);
+  for(let k=0;k<maxLbl;k++){
+    const idx=Math.round(k*step);
+    datesEl.appendChild(el("span",null,_diaCorto(pts[idx].dia)));
+  }
 }
+
+// Tooltip: al pasar el cursor, muestra fecha + acumulado del punto más cercano.
+(function(){
+  const svg=document.getElementById("chart");
+  const tip=document.getElementById("chart-tip");
+  if(!svg||!tip) return;
+  svg.addEventListener("mousemove", e=>{
+    if(!_chartSerie.length){ tip.style.display="none"; return; }
+    const rect=svg.getBoundingClientRect();
+    const frac=Math.min(1,Math.max(0,(e.clientX-rect.left)/rect.width));
+    const idx=Math.round(frac*(_chartSerie.length-1));
+    const p=_chartSerie[idx];
+    tip.textContent=p.dia+" · "+p.acum.toLocaleString()+" acum.";
+    tip.style.display="block";
+    tip.style.left=(e.clientX-rect.left+12)+"px";
+    tip.style.top="6px";
+  });
+  svg.addEventListener("mouseleave", ()=>{ tip.style.display="none"; });
+})();
 
 refresh(); setInterval(refresh, 30000);
 
