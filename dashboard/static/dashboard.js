@@ -17,6 +17,7 @@ async function refresh(){
 
   const ch=await get("/api/claude-health");
   setText("m-tokens", ch.ok ? (ch.tokens_in+ch.tokens_out).toLocaleString() : "n/d");
+  drawChart((ch.ok && ch.actividad_por_dia) ? [...ch.actividad_por_dia].reverse() : []);
 
   const inter=await get("/api/interactions");
   setText("m-inter", inter.ok ? inter.total : "n/d");
@@ -44,6 +45,27 @@ async function refresh(){
     ce.appendChild(rowEl("productos / alertas", etl.ultima.products_found+" / "+etl.ultima.alerts_generated, "muted"));
   } else { ce.appendChild(el("div","bad","no disponible")); }
 }
+const SVGNS="http://www.w3.org/2000/svg";
+function drawChart(serie){
+  const svg=document.getElementById("chart"); clear(svg);
+  const empty=document.getElementById("chart-empty");
+  if(!serie || serie.length<1){ empty.textContent="sin actividad registrada"; return; }
+  empty.textContent="";
+  let cum=0; const pts=serie.map((d,i)=>{ cum+=(d.eventos||0); return {x:i,y:cum}; });
+  const n=pts.length, maxY=pts[n-1].y||1;
+  const X=i=> n<=1?0:(i/(n-1))*600;
+  const Y=y=> 118-(y/maxY)*108;
+  const line=pts.map(p=>X(p.x)+","+Y(p.y)).join(" ");
+  const area=document.createElementNS(SVGNS,"polygon");
+  area.setAttribute("points","0,120 "+line+" 600,120");
+  area.setAttribute("fill","rgba(210,80,42,0.14)"); area.setAttribute("stroke","none");
+  const poly=document.createElementNS(SVGNS,"polyline");
+  poly.setAttribute("points",line); poly.setAttribute("fill","none");
+  poly.setAttribute("stroke","#d2502a"); poly.setAttribute("stroke-width","2.5");
+  poly.setAttribute("vector-effect","non-scaling-stroke");
+  svg.appendChild(area); svg.appendChild(poly);
+}
+
 refresh(); setInterval(refresh, 30000);
 
 async function post(p, body){ try{ const r=await fetch(p,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)}); return await r.json(); }catch(e){ return {ok:false,error:String(e)}; } }
