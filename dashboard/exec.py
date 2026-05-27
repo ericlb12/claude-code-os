@@ -2,13 +2,15 @@ import os
 import subprocess
 
 VENV_PY = os.path.expanduser("~/.venvs/claude_code_os/bin/python")
+# Los evals necesitan el venv de Petramora (tiene las deps del agente), NO el de claude_code_os.
+PETRAMORA_PY = os.path.expanduser("~/petramora-venv/bin/python")
 EVALS_WT = ("/mnt/c/Users/Luis Ojeda/Likeik CX Dropbox/Comercial/@PROYECTOS/"
             "Agente IA/source_petramora/.worktrees/feature-agent-evals/Agente_segmentador")
 
 # Allowlist: id -> (comando en lista, cwd | None=os_dir). NUNCA texto arbitrario.
 SCRIPTS = {
     "informe_qa": ([VENV_PY, "-m", "qa.cron", "--target", "petramora"], None),
-    "evals": ([VENV_PY, "-m", "evals.run_evals", "--modo", "comercial"], EVALS_WT),
+    "evals": ([PETRAMORA_PY, "-m", "evals.run_evals", "--modo", "comercial"], EVALS_WT),
 }
 
 PROMPT_TIMEOUT_S = 600

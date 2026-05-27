@@ -1,11 +1,12 @@
 import os
+import glob
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse, FileResponse
 from fastapi.staticfiles import StaticFiles
 
 from dashboard.config import load_dash_target
 from qa.config import target_path
-from dashboard.panels import errors, interactions, etl, freshness, runs, claude_health
+from dashboard.panels import errors, interactions, etl, freshness, runs, claude_health, plugins
 from dashboard import exec as execmod
 
 app = FastAPI(title="Agentic OS — Dashboard")
@@ -50,6 +51,38 @@ def api_runs():
 @app.get("/api/claude-health")
 def api_claude_health():
     cfg = _load_cfg(); return _safe(claude_health.data, cfg)
+
+
+@app.get("/api/plugins")
+def api_plugins():
+    cfg = _load_cfg(); return _safe(plugins.data, cfg)
+
+
+@app.get("/api/report")
+def api_report():
+    def _read():
+        os_dir = os.environ.get("OS_DIR", os.getcwd())
+        d = os.path.join(os_dir, "qa-reports", "petramora")
+        files = sorted(glob.glob(os.path.join(d, "*.md")))
+        if not files:
+            return {"ok": True, "fecha": None, "contenido": "(sin informes todavía)"}
+        p = files[-1]
+        with open(p, encoding="utf-8") as fh:
+            return {"ok": True, "fecha": os.path.basename(p)[:-3], "contenido": fh.read()}
+    return _safe(_read)
+
+
+@app.get("/api/cron-log")
+def api_cron_log():
+    def _read():
+        cfg = _load_cfg()
+        os_dir = os.environ.get("OS_DIR", os.getcwd())
+        p = os.path.join(os_dir, cfg.cron_log) if cfg.cron_log else None
+        if not p or not os.path.isfile(p):
+            return {"ok": True, "texto": "(sin cron.log todavía)"}
+        with open(p, encoding="utf-8") as fh:
+            return {"ok": True, "texto": fh.read()}
+    return _safe(_read)
 
 
 @app.post("/api/run")

@@ -44,6 +44,18 @@ async function refresh(){
     ce.appendChild(rowEl("última: "+etl.ultima.run_at, etl.ultima.status, etl.ultima.status==="success"?"ok":"bad"));
     ce.appendChild(rowEl("productos / alertas", etl.ultima.products_found+" / "+etl.ultima.alerts_generated, "muted"));
   } else { ce.appendChild(el("div","bad","no disponible")); }
+
+  const pl=await get("/api/plugins");
+  const cp=document.getElementById("p-plugins"); clear(cp);
+  if(pl.ok && (pl.plugins||[]).length){
+    pl.plugins.forEach(p=>{
+      const box=el("div","plugin");
+      box.appendChild(el("div","plugin-nom", p.nombre));
+      box.appendChild(el("div","muted", p.para_que));
+      box.appendChild(el("div","plugin-uso", "Cómo usar: "+p.como_usar));
+      cp.appendChild(box);
+    });
+  } else { cp.appendChild(el("div","bad","no disponible")); }
 }
 const SVGNS="http://www.w3.org/2000/svg";
 let _chartSerie=[];   // [{dia, acum}] para el tooltip
@@ -112,8 +124,8 @@ async function runPrompt(){
 }
 
 async function runScript(id){
-  if(id==="ver_cron_log"){ const r=await get("/api/runs"); setOutput(JSON.stringify(r.runs||r, null, 2)); setRunState("cron.log"); return; }
-  if(id==="ver_informe"){ const r=await get("/api/errors"); setOutput(JSON.stringify(r, null, 2)); setRunState("último informe (resumen)"); return; }
+  if(id==="ver_cron_log"){ const r=await get("/api/cron-log"); setOutput(r.ok ? (r.texto||"(vacío)") : ("ERROR: "+(r.error||""))); setRunState("cron.log"); return; }
+  if(id==="ver_informe"){ const r=await get("/api/report"); setOutput(r.ok ? (r.contenido||"(vacío)") : ("ERROR: "+(r.error||""))); setRunState(r.ok&&r.fecha?("informe "+r.fecha):"informe"); return; }
   setRunState("ejecutando "+id+"…"); setOutput("");
   const res=await post("/api/run-script",{id});
   setRunState(res.ok?"ok":"error");

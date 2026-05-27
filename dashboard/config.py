@@ -14,6 +14,7 @@ class DashConfig:
     freshness: dict[str, Any]
     claude_logs_dir: str
     cron_log: str
+    plugins: list
 
 
 def load_dash_target(path: str) -> DashConfig:
@@ -30,4 +31,5 @@ def load_dash_target(path: str) -> DashConfig:
         freshness=d.get("freshness", {"tablas": []}),
         claude_logs_dir=d.get("claude_logs_dir", "~/.claude/projects"),
         cron_log=d.get("cron_log", ""),
+        plugins=d.get("plugins", []),
     )
