@@ -1,11 +1,12 @@
 import os
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse, FileResponse
 from fastapi.staticfiles import StaticFiles
 
 from dashboard.config import load_dash_target
 from qa.config import target_path
 from dashboard.panels import errors, interactions, etl, freshness, runs, claude_health
+from dashboard import exec as execmod
 
 app = FastAPI(title="Agentic OS — Dashboard")
 
@@ -49,6 +50,20 @@ def api_runs():
 @app.get("/api/claude-health")
 def api_claude_health():
     cfg = _load_cfg(); return _safe(claude_health.data, cfg)
+
+
+@app.post("/api/run")
+async def api_run(req: Request):
+    body = await req.json()
+    os_dir = os.environ.get("OS_DIR", os.getcwd())
+    return _safe(execmod.run_prompt, (body or {}).get("prompt", ""), os_dir)
+
+
+@app.post("/api/run-script")
+async def api_run_script(req: Request):
+    body = await req.json()
+    os_dir = os.environ.get("OS_DIR", os.getcwd())
+    return _safe(execmod.run_script, (body or {}).get("id", ""), os_dir)
 
 
 @app.get("/")
