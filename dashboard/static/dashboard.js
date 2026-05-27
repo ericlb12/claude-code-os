@@ -45,3 +45,30 @@ async function refresh(){
   } else { ce.appendChild(el("div","bad","no disponible")); }
 }
 refresh(); setInterval(refresh, 30000);
+
+async function post(p, body){ try{ const r=await fetch(p,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)}); return await r.json(); }catch(e){ return {ok:false,error:String(e)}; } }
+function setOutput(text){ document.getElementById("run-output").textContent = text; }
+function setRunState(text){ document.getElementById("run-state").textContent = text; }
+
+async function runPrompt(){
+  const texto=document.getElementById("run-prompt").value.trim();
+  if(!texto){ setRunState("escribe algo primero"); return; }
+  setRunState("ejecutando…"); setOutput("");
+  const res=await post("/api/run",{prompt:texto});
+  setRunState(res.ok?"ok":"error");
+  setOutput(res.ok ? (res.output||"(sin salida)") : ("ERROR: "+(res.error||"")));
+}
+
+async function runScript(id){
+  if(id==="ver_cron_log"){ const r=await get("/api/runs"); setOutput(JSON.stringify(r.runs||r, null, 2)); setRunState("cron.log"); return; }
+  if(id==="ver_informe"){ const r=await get("/api/errors"); setOutput(JSON.stringify(r, null, 2)); setRunState("último informe (resumen)"); return; }
+  setRunState("ejecutando "+id+"…"); setOutput("");
+  const res=await post("/api/run-script",{id});
+  setRunState(res.ok?"ok":"error");
+  setOutput(res.ok ? (res.output||"(sin salida)") : ("ERROR: "+(res.error||"")));
+}
+
+document.getElementById("run-btn").addEventListener("click", runPrompt);
+document.querySelectorAll(".run-actions .btn").forEach(b=>{
+  b.addEventListener("click", ()=>runScript(b.getAttribute("data-script")));
+});

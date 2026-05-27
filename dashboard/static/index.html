@@ -12,6 +12,18 @@
     <div class="card" style="flex:1"><h3>Errores 24h</h3><div class="big" id="m-err">—</div></div>
     <div class="card" style="flex:1"><h3>ETL último</h3><div class="big" id="m-etl">—</div></div>
   </div>
+  <div class="card" style="grid-column:1/-1" id="run-zone">
+    <h3>Run a skill</h3>
+    <div class="run-actions">
+      <button class="btn" data-script="informe_qa">Informe QA</button>
+      <button class="btn" data-script="evals">Correr evals</button>
+      <button class="btn" data-script="ver_informe">Ver informe</button>
+      <button class="btn" data-script="ver_cron_log">Ver cron.log</button>
+    </div>
+    <textarea id="run-prompt" rows="3" placeholder="escribe un prompt para Claude Code…"></textarea>
+    <div class="run-bar"><button class="btn primary" id="run-btn">RUN</button><span id="run-state" class="muted"></span></div>
+    <pre id="run-output" class="run-output"></pre>
+  </div>
   <div class="card"><h3>Errores del agente — qué hacer</h3><div id="p-errors">cargando…</div></div>
   <div class="card"><h3>Runs recientes</h3><div id="p-runs">cargando…</div></div>
   <div class="card"><h3>Interacciones recientes</h3><div id="p-inter">cargando…</div></div>
