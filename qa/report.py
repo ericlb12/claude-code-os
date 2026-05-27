@@ -49,11 +49,30 @@ def run_report(target: str, since: str, interactions: list[Interaction],
     return path
 
 
+def gather(cfg, since):
+    """Reúne interacciones de las fuentes habilitadas del target.
+    Devuelve (interactions, sources_ok, sources_failed). Una fuente caída
+    no aborta: se registra en sources_failed."""
+    from qa.model import Interaction
+    from qa.sources import langfuse as lf
+    from qa.sources import supabase as sb
+    interactions: list[Interaction] = []
+    ok: list[str] = []
+    failed: list[str] = []
+    for name, mod, sect in (("langfuse", lf, cfg.langfuse), ("supabase", sb, cfg.supabase)):
+        try:
+            got = mod.fetch_interactions(sect, since)
+            interactions.extend(got)
+            if sect.get("enabled"):
+                ok.append(name)
+        except Exception as e:
+            failed.append(f"{name} ({type(e).__name__})")
+    return interactions, ok, failed
+
+
 def main(argv=None):
     import argparse
     from qa.config import load_target, target_path
-    from qa.sources import langfuse as lf
-    from qa.sources import supabase as sb
 
     os_dir = os.environ.get("OS_DIR", os.getcwd())
     p = argparse.ArgumentParser(description="QA observabilidad — informe")
@@ -64,16 +83,7 @@ def main(argv=None):
 
     cfg = load_target(target_path(os_dir, args.target))
     since = args.since or cfg.default_since
-    interactions: list[Interaction] = []
-    ok, failed = [], []
-    for name, mod, sect in (("langfuse", lf, cfg.langfuse), ("supabase", sb, cfg.supabase)):
-        try:
-            got = mod.fetch_interactions(sect, since)
-            interactions.extend(got)
-            if sect.get("enabled"):
-                ok.append(name)
-        except Exception as e:
-            failed.append(f"{name} ({type(e).__name__})")
+    interactions, ok, failed = gather(cfg, since)
     path = run_report(args.target, since, interactions, ok, failed, args.out_dir)
     print(f"Informe escrito en: {path}")
     return path
