@@ -11,6 +11,12 @@ function fill(id, ok, items, makeRow){
   items.forEach(it=>c.appendChild(makeRow(it)));
 }
 function setText(id, v){ document.getElementById(id).textContent = v; }
+function warnSources(id, resp){
+  if(resp && resp.ok && (resp.sources_failed||[]).length){
+    const c=document.getElementById(id);
+    c.insertBefore(el("div","bad","⚠ fuente no disponible: "+resp.sources_failed.join(", ")), c.firstChild);
+  }
+}
 
 async function refresh(){
   setText("reloj", new Date().toLocaleString());
@@ -23,11 +29,13 @@ async function refresh(){
   setText("m-inter", inter.ok ? inter.total : "n/d");
   fill("p-inter", inter.ok, inter.ok?inter.recientes:[],
        i=>rowEl(i.input||"—", i.error?"error":"ok", i.error?"bad":"muted"));
+  warnSources("p-inter", inter);
 
   const err=await get("/api/errors");
   setText("m-err", err.ok ? err.grupos.reduce((a,g)=>a+g.count,0) : "n/d");
   fill("p-errors", err.ok, err.ok?err.grupos:[],
        g=>rowEl(g.error_type+" · "+g.signal, "x"+g.count, "bad"));
+  warnSources("p-errors", err);
 
   const runs=await get("/api/runs");
   fill("p-runs", runs.ok, runs.ok?runs.runs:[],
