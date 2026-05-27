@@ -41,7 +41,9 @@ async function refresh(){
   setText("m-etl", (etl.ok&&etl.ultima)?etl.ultima.status:"n/d");
   const ce=document.getElementById("p-etl"); clear(ce);
   if(etl.ok&&etl.ultima){
-    ce.appendChild(rowEl("última: "+etl.ultima.run_at, etl.ultima.status, etl.ultima.status==="success"?"ok":"bad"));
+    const st=etl.ultima.status;
+    const stCls = st==="success" ? "ok" : (st==="error" ? "bad" : "muted");
+    ce.appendChild(rowEl("última: "+etl.ultima.run_at, st, stCls));
     ce.appendChild(rowEl("productos / alertas", etl.ultima.products_found+" / "+etl.ultima.alerts_generated, "muted"));
   } else { ce.appendChild(el("div","bad","no disponible")); }
 
