@@ -142,7 +142,17 @@ async function runScript(id){
   setOutput(res.ok ? (res.output||"(sin salida)") : ("ERROR: "+(res.error||"")));
 }
 
+async function runSkill(prompt){
+  setRunState("ejecutando skill…"); setOutput("");
+  const res=await post("/api/run",{prompt});
+  setRunState(res.ok?"ok":"error");
+  setOutput(res.ok ? (res.output||"(sin salida)") : ("ERROR: "+(res.error||"")));
+}
+
 document.getElementById("run-btn").addEventListener("click", runPrompt);
-document.querySelectorAll(".run-actions .btn").forEach(b=>{
+document.querySelectorAll(".run-actions .btn[data-script]").forEach(b=>{
   b.addEventListener("click", ()=>runScript(b.getAttribute("data-script")));
+});
+document.querySelectorAll(".run-actions .btn[data-skill]").forEach(b=>{
+  b.addEventListener("click", ()=>runSkill(b.getAttribute("data-skill")));
 });

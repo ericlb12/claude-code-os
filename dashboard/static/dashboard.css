@@ -232,3 +232,6 @@ textarea#run-prompt:focus{
 .plugin:last-child{border-bottom:none}
 .plugin-nom{font-weight:600;color:var(--accent,#d2502a)}
 .plugin-uso{font-size:12px;margin-top:2px;font-family:"JetBrains Mono",ui-monospace,monospace;color:var(--text,#e8e8ea)}
+
+.run-group-label{font-size:10px;letter-spacing:1px;color:var(--muted,#8a8a92);text-transform:uppercase;margin:10px 0 4px}
+.btn.skill{border-color:#4a3f6b}

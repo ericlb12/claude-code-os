@@ -39,7 +39,17 @@ Pregunta de una en una, conversacional:
 - Si es de **research/contenido/comercial** → nueva skill de esa área.
 - Sugerir registrar la decisión (en `decisions/log.md` si existe, o en memoria).
 
+## Modo auto (headless / desde el dashboard)
+Si te invocan sin un humano con quien conversar (p.ej. `claude -p` desde el botón del
+dashboard, o el prompt pide "modo auto"): **NO entrevistes.** En su lugar, propón
+1-3 candidatos de automatización a partir de lo que SÍ puedes leer —
+`connections.md`, la memoria/CLAUDE.md (prioridades/pain), el último `audits/audit-*.md`
+(huecos), `qa-reports/petramora/cron.log` (runs recientes) y los skills existentes —
+cada uno con una línea de "por qué es leverage" + un scope breve (entrada→salida,
+local/remoto, encadenado a `dev-add-feature`/cron). Marca que es una propuesta auto
+(menos personalizada que la entrevista) y que para afinar conviene correrlo interactivo.
+
 ## Reglas
-- Una pasada = un artefacto. No multi-candidato.
-- El usuario hace el pensamiento; tú conduces la entrevista.
+- Una pasada = un artefacto (modo entrevista). En modo auto, máx 3 propuestas.
+- En entrevista, el usuario hace el pensamiento; tú conduces. En auto, deduces del contexto.
 - "Boring is beautiful": prefiere workflow determinista a agente autónomo cuando valga.
