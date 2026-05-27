@@ -8,6 +8,7 @@ import yaml
 class DashConfig:
     name: str
     default_since: str
+    langfuse: dict[str, Any]
     supabase: dict[str, Any]
     etl: dict[str, Any]
     freshness: dict[str, Any]
@@ -23,6 +24,7 @@ def load_dash_target(path: str) -> DashConfig:
     return DashConfig(
         name=d.get("name", ""),
         default_since=d.get("default_since", "24h"),
+        langfuse=d.get("langfuse", {"enabled": False}),
         supabase=d.get("supabase", {"enabled": False}),
         etl=d.get("etl", {}),
         freshness=d.get("freshness", {"tablas": []}),
