@@ -2,3 +2,6 @@ pytest
 pyyaml
 requests
 supabase
+fastapi
+uvicorn
+httpx
