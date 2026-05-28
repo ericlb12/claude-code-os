@@ -24,10 +24,13 @@ def _default_executor(cmd: list, cwd: str):
 
 
 def run_prompt(texto: str, os_dir: str, executor=_default_executor) -> dict:
-    """Lanza `claude -p <texto>` headless en os_dir (permisos normales)."""
+    """Lanza `claude -p <texto>` headless en os_dir.
+    `--permission-mode acceptEdits` auto-acepta Write/Edit (necesario para skills
+    como os-audit que escriben informes; los settings.json con allow-rules no
+    bastan en headless sin esto)."""
     if not (texto or "").strip():
         return {"ok": False, "error": "prompt vacío"}
-    cmd = ["claude", "-p", texto]
+    cmd = ["claude", "-p", "--permission-mode", "acceptEdits", texto]
     try:
         rc, out = executor(cmd, os_dir)
     except Exception as e:
