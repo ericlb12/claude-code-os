@@ -12,7 +12,7 @@ supabase:
   key_env: SUPABASE_KEY
   table: agent_logs
 etl:
-  table: scraper_runs
+  table: all_runs            # VIEW que une etl_runs + scraper_runs
   run_at_col: run_at
   status_col: status
 freshness:
@@ -20,5 +20,6 @@ freshness:
     - { tabla: scraper_runs, col: run_at, umbral_dias: 2 }
     - { tabla: segmentacion_clientes_raw, col: fecha_corte, umbral_dias: 35 }
     - { tabla: agent_logs, col: timestamp, umbral_dias: 2 }
+    - { tabla: azure_freshness, col: max_fecha, umbral_dias: 2 }   # mirror Azure SQL (sincronizado por Cloud Scheduler)
 claude_logs_dir: "~/.claude/projects"
 cron_log: "qa-reports/petramora/cron.log"

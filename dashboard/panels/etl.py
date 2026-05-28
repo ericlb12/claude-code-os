@@ -1,5 +1,5 @@
 def summarize_runs(rows: list[dict]) -> dict:
-    """Resume filas de scraper_runs (ordenadas desc por run_at). Puro, testeable."""
+    """Resume filas de all_runs (VIEW que une etl_runs + scraper_runs)."""
     if not rows:
         return {"ok": True, "total_runs": 0, "ultima": None, "ultimo_error": None}
     ultima = rows[0]
@@ -8,10 +8,13 @@ def summarize_runs(rows: list[dict]) -> dict:
         "ok": True,
         "total_runs": len(rows),
         "ultima": {"run_at": ultima.get("run_at"), "status": ultima.get("status"),
-                   "products_found": ultima.get("products_found"),
-                   "products_updated": ultima.get("products_updated"),
-                   "alerts_generated": ultima.get("alerts_generated")},
+                   "kind": ultima.get("kind"), "name": ultima.get("name"),
+                   "rows_in": ultima.get("rows_in"),
+                   "rows_out": ultima.get("rows_out"),
+                   "duration_ms": ultima.get("duration_ms")},
         "ultimo_error": ({"run_at": ultimo_error.get("run_at"),
+                          "kind": ultimo_error.get("kind"),
+                          "name": ultimo_error.get("name"),
                           "error_message": ultimo_error.get("error_message")}
                          if ultimo_error else None),
     }
