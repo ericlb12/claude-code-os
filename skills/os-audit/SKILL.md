@@ -13,9 +13,11 @@ Alcance: "¿está el OS bien construido?" (estructura). NO es planificador de
 capacidades nuevas — eso es `os-level-up`.
 
 ## Las 4 C (25 c/u)
-- **Context** — conoce el negocio: `CLAUDE.md`, memoria (`MEMORY.md` del proyecto y
-  `~/.claude/projects/<id>/memory/`), el vault Karpathy (`/home/eric_likeik/wiki`),
-  `connections.md`.
+- **Context** — conoce el negocio: `CLAUDE.md`, memoria del proyecto y auto-memoria
+  del usuario (glob `~/.claude/projects/*/memory/MEMORY.md` y usa la entrada poblada;
+  para Eric la canónica es `~/.claude/projects/-mnt-c-Users-Luis-Ojeda/memory/`, NO
+  la derivada del cwd cuando se corre en headless desde `$OS_DIR`), el vault Karpathy
+  (`/home/eric_likeik/wiki`), `connections.md`.
 - **Connections** — alcanza los sistemas: `connections.md` (filas con mecanismo/auth),
   `.env`/Supabase, `references/{tool}-api.md` si existen, MCPs en settings.
 - **Capabilities** — sabe hacer el trabajo: `~/.claude/skills/*/SKILL.md` (los `dev-*`,
@@ -35,7 +37,10 @@ capacidades nuevas — eso es `os-level-up`.
    - Capabilities: nº y calidad de skills + que existan qa/ y dashboard/ operativos.
    - Cadence: cron instalado + corriendo (mira cron.log reciente) + dashboard.
 3. **Top-3 huecos** ponderados por leverage, cada uno con un comando/siguiente paso.
-4. **Escribe** `claude_code_os/audits/audit-<YYYY-MM-DD>.md` con el scoreboard y muéstralo.
+4. **Escribe** el informe en `<OS_DIR>/audits/audit-<YYYY-MM-DD>.md` (donde `<OS_DIR>` =
+   `/mnt/c/Users/Luis Ojeda/Likeik CX Dropbox/Comercial/@PROYECTOS/Agente IA/claude_code_os`)
+   y muéstralo. Si la escritura falla (p.ej. headless sin permiso), cae a
+   `/tmp/audit-<YYYY-MM-DD>.md` y avisa en la salida.
 
 ## Formato de salida
 ```
